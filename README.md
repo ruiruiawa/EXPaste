@@ -23,7 +23,7 @@
 EXPaste 通过巧妙地将文件读取与实时文本编辑相结合，在一些特定情况下能显著提升粘贴效率
 
 > 💡 **灵感来源**：
-> 在一些软件或网页中，虽然快捷键和宏定义不能粘贴，但是只要像手机输入法一样模拟键盘输入，也能达到绕过禁止粘贴的问题
+> 在一些软件或网页中，虽然快捷键和宏定义不能粘贴，但是只要像手机输入法一样模拟键盘输入，也能达到绕过禁止粘贴的目的
 > 
 > <img src="./res/Forbidden.png" alt="禁止录入粘贴" width="250"/>
 
@@ -42,13 +42,25 @@ EXPaste 通过巧妙地将文件读取与实时文本编辑相结合，在一些
 
 ### 系统要求
 - **操作系统**: Windows 7/8/10/11, macOS, Linux通用 `目前只试验过Windows`
-- **Python版本**: 3.6 或更高版本
-
-        PyQt5>=5.15.0
-        keyboard>=0.13.5
-
 - **内存**: 至少 512MB RAM
 - **磁盘空间**: 至少 50MB 可用空间
+- **Python版本**: 3.6 或更高版本
+
+        PyQt5>=5.15.0, keyboard>=0.13.5
+   windows , macOS
+
+        pip install PyQt5 keyboard
+   Linux (Ubuntu/Debian)
+
+        sudo apt update
+        sudo apt install python3-pip
+        sudo apt install python3-tk
+        pip3 install PyQt5 keyboard
+    Linux (CentOS/RHEL)
+ 
+        sudo yum install python3-pip
+        sudo yum install python3-tkinter
+        pip3 install PyQt5 keyboard
 
 ### 安装步骤
 
@@ -61,7 +73,7 @@ EXPaste 通过巧妙地将文件读取与实时文本编辑相结合，在一些
 
 **方法2. 直接使用exe**
 
-在旁边的[release](https://)获取Windows平台的单文件打包版
+在旁边或者下方的[release](https://github.com/2ffjc/EXPaste/releases/latest)获取Windows平台的单文件打包版
 
 ## 使用指南
 
@@ -96,7 +108,7 @@ EXPaste 通过巧妙地将文件读取与实时文本编辑相结合，在一些
 > A: 确保文本文件使用UTF-8编码保存。
 
 
-### 🤝 贡献指南
+## 🤝 贡献指南
 
 我们欢迎各种形式的贡献！
 
