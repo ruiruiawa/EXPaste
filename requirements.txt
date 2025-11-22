@@ -1,0 +1,3 @@
+#这是需要的包
+PyQt5
+keyboard
