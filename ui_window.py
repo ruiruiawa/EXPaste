@@ -132,12 +132,7 @@ class MainWindow(QMainWindow):
         self.select_btn.setStyleSheet(STYLES["button_secondary"])
         self.select_btn.clicked.connect(self.select_file)
         
-        self.create_btn = QPushButton("创建示例文件")
-        self.create_btn.setStyleSheet(STYLES["button_secondary"])
-        self.create_btn.clicked.connect(self.create_default_file)
-        
         btn_layout.addWidget(self.select_btn)
-        btn_layout.addWidget(self.create_btn)
         file_layout.addLayout(btn_layout)
         
         file_group.setLayout(file_layout)
@@ -183,13 +178,6 @@ class MainWindow(QMainWindow):
         self.clear_btn.setStyleSheet(STYLES["button_secondary"])
         self.clear_btn.clicked.connect(self.clear_editor)
         
-        self.load_example_btn = QPushButton("加载示例")
-        self.load_example_btn.setStyleSheet(STYLES["button_secondary"])
-        self.load_example_btn.clicked.connect(self.load_example_content)
-        
-        editor_btn_layout.addWidget(self.clear_btn)
-        editor_btn_layout.addWidget(self.load_example_btn)
-        editor_btn_layout.addStretch()
         
         editor_layout.addLayout(editor_btn_layout)
         editor_group.setLayout(editor_layout)
@@ -245,8 +233,7 @@ Hello, World!
             info_text += f"📁 路径: {self.file_path}"
             self.preview_text.setPlainText(file_info['content_preview'])
         else:
-            info_text = "❌ 未找到 text.txt 文件\n"
-            info_text += "请选择文件或创建示例文件"
+            info_text = "请选择文件"
             self.preview_text.clear()
         
         self.file_info_label.setText(info_text)

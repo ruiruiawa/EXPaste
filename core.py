@@ -60,21 +60,6 @@ class PasteWorker(QObject):
 
 class FileManager:
     @staticmethod
-    def create_default_file(file_path):
-        try:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write("# 这是一个自动创建的文本文件\n")
-                f.write("# 请在此处输入您想要自动输入的内容\n")
-                f.write("# 每行内容将会被自动输入\n")
-                f.write("# 空行也会被输入为换行\n\n")
-                f.write("Hello, World!\n")
-                f.write("这是示例内容awa~\n")
-                f.write("第三行文本\n")
-            return True
-        except Exception as e:
-            return False
-    
-    @staticmethod
     def get_file_info(file_path):
         if os.path.exists(file_path):
             try:
