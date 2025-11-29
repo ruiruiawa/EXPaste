@@ -62,4 +62,4 @@ class HeaderPanel(QWidget):
     
     def update_hotkey_info(self, hotkey_info):
         """更新热键信息"""
-        self.hotkey_info_label.setText(f"现代化自动粘贴工具 - 热键: {hotkey_info}")
+        self.hotkey_info_label.setText(f"一款自动粘贴工具")

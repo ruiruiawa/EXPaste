@@ -3,7 +3,7 @@ import tempfile
 import logging
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                             QLabel, QComboBox, QMenuBar, QAction, QMessageBox,
-                            QFileDialog, QProgressBar, QTextEdit, QPushButton)
+                            QFileDialog)
 from PyQt5.QtCore import QThread, Qt
 from PyQt5.QtGui import QIcon, QDragEnterEvent, QDropEvent
 
@@ -14,6 +14,8 @@ from ui.widgets.file_panel import FilePanel
 from ui.widgets.editor_panel import EditorPanel
 from ui.widgets.control_panel import ControlPanel
 from ui.widgets.drag_drop_hint import DragDropHint
+from ui.widgets.mode_selector import ModeSelector
+from ui.widgets.header_panel import HeaderPanel
 from ui.dialogs.settings_dialog import SettingsDialog
 from services.hotkey_service import HotkeyService
 from services.drag_drop_service import DragDropService
@@ -23,7 +25,7 @@ from styles import STYLES
 logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
-    """主窗口 - 负责协调各个组件"""
+    """主窗口 - 使用组件化的UI架构"""
     
     def __init__(self):
         super().__init__()
@@ -40,11 +42,11 @@ class MainWindow(QMainWindow):
         self._enable_drag_drop()
     
     def _setup_ui(self):
-        """初始化UI"""
+        """初始化UI - 使用组件化的架构"""
         self.setWindowTitle("EXPaste v0.1.1")
         self.setGeometry(100, 100, 800, 700)
         
-        # 应用样式
+        # 应用主窗口样式
         self.setStyleSheet(STYLES["main_window"])
         
         # 设置图标
@@ -59,26 +61,26 @@ class MainWindow(QMainWindow):
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
         
-        # 创建标题区域
-        title_widget = self._create_title_widget()
-        layout.addWidget(title_widget)
+        # 使用HeaderPanel组件
+        self.header_panel = HeaderPanel()
+        layout.addWidget(self.header_panel)
         
-        # 创建模式选择器
-        mode_selector = self._create_mode_selector()
-        layout.addWidget(mode_selector)
+        # 使用ModeSelector组件
+        self.mode_selector = ModeSelector()
+        layout.addWidget(self.mode_selector)
         
         # 热键状态显示
-        self.hotkey_status_label = QLabel()
+        self.hotkey_status_label = QLabel("热键状态: 准备中...")
         self.hotkey_status_label.setStyleSheet(STYLES["status_normal"])
         self._update_hotkey_status()
         layout.addWidget(self.hotkey_status_label)
         
-        # 拖拽提示
+        # 使用DragDropHint组件
         self.drag_drop_hint = DragDropHint()
         self.drag_drop_hint.setVisible(True)
         layout.addWidget(self.drag_drop_hint)
         
-        # 创建各个面板
+        # 使用各个面板组件
         self.file_panel = FilePanel()
         self.editor_panel = EditorPanel()
         self.control_panel = ControlPanel()
@@ -90,68 +92,11 @@ class MainWindow(QMainWindow):
         # 初始状态：显示文件面板，隐藏编辑器面板
         self.editor_panel.setVisible(False)
         
-        # 最后创建菜单（确保所有面板都已初始化）
+        # 创建菜单
         self._create_menu()
-    
-    def _create_title_widget(self):
-        """创建标题区域"""
-        widget = QWidget()
-        widget.setStyleSheet(STYLES["card_highlight"])
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(20, 15, 20, 15)
         
-        # 标题行
-        title_layout = QHBoxLayout()
-        title_label = QLabel("EXPaste")
-        title_label.setStyleSheet(STYLES["title_label"])
-        
-        version_badge = QLabel("v0.1.1")
-        version_badge.setStyleSheet(STYLES["badge_info"])
-        
-        title_layout.addWidget(title_label)
-        title_layout.addWidget(version_badge)
-        title_layout.addStretch()
-        
-        # 热键信息
-        self.hotkey_info_label = QLabel()
+        # 更新标题区域的热键信息
         self._update_title_hotkey_info()
-        self.hotkey_info_label.setStyleSheet(STYLES["normal_label"])
-        
-        layout.addLayout(title_layout)
-        layout.addWidget(self.hotkey_info_label)
-        
-        return widget
-    
-    def _create_mode_selector(self):
-        """创建模式选择器"""
-        widget = QWidget()
-        widget.setStyleSheet(STYLES["card"])
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(20, 15, 20, 15)
-        
-        # 控制面板
-        control_layout = QHBoxLayout()
-        control_label = QLabel("输入模式:")
-        control_label.setStyleSheet("""
-            QLabel {
-                color: #4a5a7a;
-                font-weight: bold;
-                min-width: 80px;
-            }
-        """)
-        
-        self.mode_combo = QComboBox()
-        self.mode_combo.setStyleSheet(STYLES["combo_box"])
-        self.mode_combo.addItem("📁 文件模式", "file")
-        self.mode_combo.addItem("✏️ 编辑模式", "editor")
-        self.mode_combo.currentIndexChanged.connect(self._on_mode_changed)
-        
-        control_layout.addWidget(control_label)
-        control_layout.addWidget(self.mode_combo)
-        control_layout.addStretch()
-        
-        layout.addLayout(control_layout)
-        return widget
     
     def _set_window_icon(self):
         """设置窗口图标"""
@@ -198,6 +143,9 @@ class MainWindow(QMainWindow):
     
     def _connect_signals(self):
         """连接信号槽"""
+        # ModeSelector信号
+        self.mode_selector.mode_changed.connect(self._on_mode_changed)
+        
         # 文件面板信号
         self.file_panel.file_selected.connect(self._on_file_selected)
         
@@ -254,20 +202,6 @@ class MainWindow(QMainWindow):
         """启用拖放功能"""
         self.setAcceptDrops(True)
     
-    def _update_title_hotkey_info(self):
-        """更新标题区域的热键信息显示"""
-        hotkey_info = self._get_hotkey_info()
-        self.hotkey_info_label.setText(f"现代化自动粘贴工具 - 热键: {hotkey_info}")
-    
-    def _get_hotkey_info(self):
-        """获取热键信息字符串"""
-        if self.app_state.settings.hotkeys_enabled:
-            start_key = format_hotkey_display(self.app_state.settings.start_hotkey)
-            stop_key = format_hotkey_display(self.app_state.settings.stop_hotkey)
-            return f"{start_key} 开始 / {stop_key} 停止"
-        else:
-            return "热键已禁用"
-    
     def _update_hotkey_status(self, success=None):
         """更新热键状态显示"""
         if success is None:
@@ -292,7 +226,21 @@ class MainWindow(QMainWindow):
         self.hotkey_status_label.setText(f"热键状态: {status}")
         self.hotkey_status_label.setStyleSheet(style)
     
-    # 事件处理
+    def _update_title_hotkey_info(self):
+        """更新标题区域的热键信息显示"""
+        hotkey_info = self._get_hotkey_info()
+        self.header_panel.update_hotkey_info(hotkey_info)
+    
+    def _get_hotkey_info(self):
+        """获取热键信息字符串"""
+        if self.app_state.settings.hotkeys_enabled:
+            start_key = format_hotkey_display(self.app_state.settings.start_hotkey)
+            stop_key = format_hotkey_display(self.app_state.settings.stop_hotkey)
+            return f"{start_key} 开始 / {stop_key} 停止"
+        else:
+            return "热键已禁用"
+    
+    # 拖拽事件处理
     def dragEnterEvent(self, event: QDragEnterEvent):
         """拖拽进入事件"""
         if self.drag_drop_service.handle_drag_enter(event):
@@ -300,7 +248,7 @@ class MainWindow(QMainWindow):
     
     def dragLeaveEvent(self, event):
         """拖拽离开事件"""
-        self.drag_drop_service.drag_left.emit()
+        self.drag_drop_hint.set_normal_style()
         event.accept()
     
     def dropEvent(self, event: QDropEvent):
@@ -319,18 +267,17 @@ class MainWindow(QMainWindow):
         """文件拖放处理"""
         try:
             # 切换到文件模式
-            self.mode_combo.setCurrentIndex(0)  # 文件模式
-            self._on_mode_changed(0)
+            self.mode_selector.set_mode("file")
             
             # 更新文件信息
-            self.file_panel.update_file_info(file_path)
+            self.file_panel.load_file(file_path)
             
             # 更新应用状态
             self.app_state.current_file = file_path
             
             # 显示成功消息
             file_name = os.path.basename(file_path)
-            self.control_panel.status_label.setText(f"已加载文件: {file_name}")
+            self.control_panel.update_status(f"已加载文件: {file_name}")
             
             logger.info(f"通过拖拽加载文件: {file_path}")
             
@@ -339,9 +286,8 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "错误", error_msg)
             logger.error(error_msg)
     
-    def _on_mode_changed(self, index):
+    def _on_mode_changed(self, mode):
         """模式切换处理"""
-        mode = self.mode_combo.currentData()
         if mode == "file":
             self.file_panel.setVisible(True)
             self.editor_panel.setVisible(False)
@@ -362,7 +308,6 @@ class MainWindow(QMainWindow):
     def _on_file_selected(self, file_path):
         """文件选择处理"""
         self.app_state.current_file = file_path
-        self.file_panel.update_file_info(file_path)
     
     def _on_editor_content_changed(self, content):
         """编辑器内容变化处理"""
@@ -370,7 +315,7 @@ class MainWindow(QMainWindow):
     
     def _on_hotkey_start(self):
         """热键开始粘贴"""
-        if not self.control_panel.start_btn.isEnabled():
+        if not self.control_panel.can_start():
             # 如果已经开始，忽略热键
             return
         
@@ -379,7 +324,7 @@ class MainWindow(QMainWindow):
     
     def _on_hotkey_stop(self):
         """热键停止粘贴"""
-        if not self.control_panel.stop_btn.isEnabled():
+        if not self.control_panel.can_stop():
             # 如果已经停止，忽略热键
             return
         
@@ -442,12 +387,12 @@ class MainWindow(QMainWindow):
     
     def _on_status_changed(self, message):
         """状态变化"""
-        self.control_panel.status_label.setText(message)
+        self.control_panel.update_status(message)
     
     def _on_paste_finished(self):
         """粘贴完成"""
         self._cleanup_after_paste()
-        self.control_panel.status_label.setText("操作完成")
+        self.control_panel.update_status("操作完成")
     
     def _on_paste_error(self, error_msg):
         """粘贴错误"""

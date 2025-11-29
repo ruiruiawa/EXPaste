@@ -7,7 +7,7 @@
 ![Version](https://img.shields.io/badge/版本-0.1.0-blue.svg)
 ![Python](https://img.shields.io/badge/Python-3.6+-green.svg)
 ![PyQt5](https://img.shields.io/badge/GUI-PyQt5-orange.svg)
-![License](https://img.shields.io/badge/许可证-MIT-lightgrey.svg)
+![License](https://img.shields.io/badge/许可证-Apache2.0-lightgrey.svg)
 
 [项目简介](#项目简介) • [使用指南](#使用指南) • [~~技术架构~~](#-技术架构) • [注意事项](#注意事项)
 
